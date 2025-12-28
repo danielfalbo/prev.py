@@ -505,7 +505,7 @@ def generate_all(db):
     INDEX_PATH = DIST_DIR / f'index.html'
     db_blocks = [
         db.execute(f"SELECT html FROM weblog WHERE slug='{slug}'").fetchone()
-        for slug in ['words', 'code', 'gallery']
+        for slug in ['words', 'code']
     ]
     db_blocks_html = " ".join([row['html'] for row in db_blocks])
     write_file(INDEX_PATH, index(css, db_blocks_html))
