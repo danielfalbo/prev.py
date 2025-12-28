@@ -200,7 +200,7 @@ PRINCIPLES
 
 TODO, MAYBE
 
-  - Compress gallery images
+  - Hide unlisted from rss.
 
   - Drop 'RELATIONSHIPS' in favour of native SQLite views.
 
@@ -227,3 +227,5 @@ TODO, MAYBE
     https://news.ycombinator.com/item?id=26691156
 
   - More granular sqlite diff. Substring level.
+
+  - Compress gallery images
