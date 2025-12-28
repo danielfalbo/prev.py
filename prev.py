@@ -290,7 +290,7 @@ def author_page(css, entry):
     nav = make_navbar([
         ('root', '/index.html'),
         (entry['table'], f'/{entry["table"]}.html'),
-        (entry['name'], f'/{entry["table"]}/{entry["slug"]}.html')
+        (entry['slug'], f'/{entry["table"]}/{entry["slug"]}.html')
     ])
 
     return layout(entry['name'], css, "".join([
