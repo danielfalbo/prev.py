@@ -259,9 +259,10 @@ def index(css, more_html_content):
             " years old"
         ),
         h('p', {}, "🕺 Dancer"),
-        h('code', {}, ":wq↵"),
 
         more_html_content,
+
+        h('pre', {}, ":wq↵"),
 
         h('script', {}, LIVE_AGE_JS),
         h('style', {}, WAVING_HAND_CSS)
