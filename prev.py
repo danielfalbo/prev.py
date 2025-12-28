@@ -481,7 +481,11 @@ def generate_rss(db, table):
     title_col = 'title'
 
     # Fetch all entries ordered by creation date (newest first)
-    q = f"SELECT slug, {title_col}, created_time, html FROM {table} ORDER BY created_time DESC"
+    where_clause = "WHERE listed != 0" if table == 'weblog' else ''
+    q = f"""SELECT slug, {title_col}, created_time, html
+            FROM {table}
+            {where_clause}
+            ORDER BY created_time DESC"""
     rows = db.execute(q).fetchall()
 
     items_xml = ""

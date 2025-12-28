@@ -200,8 +200,6 @@ PRINCIPLES
 
 TODO, MAYBE
 
-  - Hide unlisted from rss.
-
   - Drop 'RELATIONSHIPS' in favour of native SQLite views.
 
   - Introduce SNIPPETS(id, slug, txt, created_time, author_id).
@@ -221,9 +219,3 @@ TODO, MAYBE
     https://news.ycombinator.com/item?id=44937991,
     http://bettermotherfuckingwebsite.com,
     https://danburzo.ro/add-a-web-feed/
-
-  - Improve overall accessibility: it should be as accessible and bulletproof
-    as critical services websites should.
-    https://news.ycombinator.com/item?id=26691156
-
-  - Compress gallery images
