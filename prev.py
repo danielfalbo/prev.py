@@ -236,7 +236,7 @@ const tick = () => {
 tick();
 """
 
-def layout(title, body_content_list, navbar):
+def layout(title, components):
     return "<!doctype html>" + h('html', {},
 
         h('head', {},
@@ -246,12 +246,12 @@ def layout(title, body_content_list, navbar):
             '<link rel="icon" type="image/x-icon" href="/favicon.ico">',
         ),
 
-        h('body', {}, "".join([navbar, *body_content_list, FOOTER]))
+        h('body', {}, "".join([*components, FOOTER]))
     )
 
 def homepage(more_html_content):
-    nav = navbar_component(None, None)
     return layout("Home", [
+        navbar_component(None, None),
         h('p', {'style': 'font-size: 3rem; font-weight: 700; margin: 0px'},
             "Hi, I'm Daniel ",
             h('span', {'id': 'waving-hand'}, '👋')
@@ -278,34 +278,32 @@ def homepage(more_html_content):
 
         h('script', {}, LIVE_AGE_JS),
         h('style', {}, WAVING_HAND_CSS)
-    ], nav)
+    ])
 
 def title_component(title_str):
     return h('p', {'class': "title-component"}, title_str)
 
 def table_index_page(table, html):
-    nav = navbar_component(table, None)
     return layout(table, [
+        navbar_component(table, None),
         title_component(table),
         html
-    ], nav)
+    ])
 
 def author_page(entry):
-    nav = navbar_component(entry['table'], entry['slug'])
-
-    return layout(entry['name'], "".join([
+    return layout(entry['name'], [
+        navbar_component(entry['table'], entry['slug']),
         title_component(entry['name']),
         entry['context'],
-    ]), nav)
+    ])
 
 def entry_page(entry):
-    nav = navbar_component(entry['table'], entry['slug'])
-
-    return layout(entry['title'], "".join([
+    return layout(entry['title'], [
+        navbar_component(entry['table'], entry['slug']),
         title_component(entry['title']),
         entry['context'],
         entry['html']
-    ]), nav)
+    ])
 
 NOT_FOUND_PAGE = """
 <style>html { color-scheme: light dark; }</style>
