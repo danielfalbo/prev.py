@@ -152,17 +152,27 @@ a:hover { text-decoration: none; }
 """
 
 DOT = h('span', {}, ' · ')
-NAVBAR = h('p', {},
-    h('a', {'href': '/index.html'}, 'root'),
-    # DOT, h('a', {'href': '/weblog/code.html'}, 'code'),
-    # DOT, h('a', {'href': '/weblog/words.html'}, 'words')
-)
+
 FOOTER = h('p', {'class': 'footer'},
     "This entire website is built using 1 single file: ",
     h('a', {'href': 'https://github.com/danielfalbo/prev.py/blob/main/prev.py'},
         'prev.py'),
     "."
 )
+
+def make_navbar(steps):
+    """
+    Generates a breadcrumb nav.
+    steps: list of tuples (label, href). If href is None, it's just text.
+    """
+    links = []
+    for i, (label, href) in enumerate(steps):
+        if i > 0: links.append(' / ')
+        if href:
+            links.append(h('a', {'href': href}, label))
+        else:
+            links.append(label)
+    return h('p', {}, *links)
 
 WAVING_HAND_CSS = """
 @keyframes wave {
@@ -216,7 +226,7 @@ const tick = () => {
 tick();
 """
 
-def layout(title, css, body_content_list):
+def layout(title, css, body_content_list, navbar):
     return "<!doctype html>" + h('html', {},
 
         h('head', {},
@@ -226,10 +236,11 @@ def layout(title, css, body_content_list):
             '<link rel="icon" type="image/x-icon" href="/favicon.ico">',
         ),
 
-        h('body', {}, "".join([NAVBAR, *body_content_list, FOOTER]))
+        h('body', {}, "".join([navbar, *body_content_list, FOOTER]))
     )
 
 def index(css, more_html_content):
+    nav = make_navbar([('root', '/index.html')])
     return layout("Home", css, [
         h('p', {'style': 'font-size: 3rem; font-weight: 700; margin: 0px'},
             "Hi, I'm Daniel ",
@@ -256,29 +267,45 @@ def index(css, more_html_content):
 
         h('script', {}, LIVE_AGE_JS),
         h('style', {}, WAVING_HAND_CSS)
-    ])
+    ], nav)
 
 def title_component(title_str):
     return h('p', {'class': "title-component"}, title_str)
 
 def table_index_page(css, table, html):
+    nav = make_navbar([
+        ('root', '/index.html'),
+        (table, None)
+    ])
     return layout(table, css, [
         title_component(table),
         html
-    ])
+    ], nav)
 
 def author_page(css, entry):
+    nav = make_navbar([
+        ('root', '/index.html'),
+        (entry['table'], f'/{entry["table"]}.html'),
+        (entry['name'], None)
+    ])
+
     return layout(entry['name'], css, "".join([
         title_component(entry['name']),
         entry['context'],
-    ]))
+    ]), nav)
 
 def entry_page(css, entry):
+    nav = make_navbar([
+        ('root', '/index.html'),
+        (entry['table'], f'/{entry["table"]}.html'),
+        (entry['title'], None)
+    ])
+
     return layout(entry['title'], css, "".join([
         title_component(entry['title']),
         entry['context'],
         entry['html']
-    ]))
+    ]), nav)
 
 TABLE_TO_BUILDER = {
     'authors': author_page,
@@ -372,7 +399,10 @@ def gen_tmpl_values(db, table):
     rows = db.execute(f'SELECT * FROM {table}').fetchall()
 
     # Construct a map from slug to key-value replacements
-    tmpl_values_by_slug = {r['slug']: {**dict(r), 'context': ''} for r in rows}
+    tmpl_values_by_slug = {
+        r['slug']: {**dict(r), 'context': '', 'table': table}
+        for r in rows
+    }
 
     # Append DATEAGE JS <script> to 'html' content
     for slug in tmpl_values_by_slug:
