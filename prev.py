@@ -249,7 +249,7 @@ def layout(title, css, body_content_list, navbar):
         h('body', {}, "".join([navbar, *body_content_list, FOOTER]))
     )
 
-def index(css, more_html_content):
+def homepage(css, more_html_content):
     nav = navbar_component(None, None)
     return layout("Home", css, [
         h('p', {'style': 'font-size: 3rem; font-weight: 700; margin: 0px'},
@@ -389,7 +389,7 @@ def dateage_js(created_time):
 
 # =========================== Site Generation ==================================
 
-def gen_tmpl_values(db, table):
+def fetch_values(db, table):
     """
     Returns a dict from slug to a key-value object with the values to
     be used as arguments when rendering pages via builder functions.
@@ -451,7 +451,7 @@ def generate_section(db, css, table, builder):
     Generate html page for 'table' index at 'DIST_DIR/<table>.html' and page for
     all entries of given 'table' within 'db' at 'DIST_DIR/<table>/[slug].html'.
     """
-    values = gen_tmpl_values(db, table)
+    values = fetch_values(db, table)
     index_content_html = ''
 
     for slug, row in values.items():
@@ -545,14 +545,14 @@ def generate_all(db):
 
     tables = get_db_tables(db)
 
-    # write index.html from index() function with blocks from db
+    # write index.html from homepage() function with blocks from db
     INDEX_PATH = DIST_DIR / f'index.html'
     db_blocks = [
         db.execute(f"SELECT html FROM weblog WHERE slug='{slug}'").fetchone()
         for slug in ['words', 'code']
     ]
     db_blocks_html = " ".join([row['html'] for row in db_blocks])
-    write_file(INDEX_PATH, index(css, db_blocks_html))
+    write_file(INDEX_PATH, homepage(css, db_blocks_html))
 
     # Write 404.html page
     INDEX_PATH = DIST_DIR / f'404.html'
