@@ -26,7 +26,8 @@ AUTHOR_BIRTHDAY = "2003-12-10T13:30:00+01:00"
 
 BASE_URL = "https://danielfalbo.com"
 
-USAGE_STR = f'Usage: python3 {sys.argv[0]} [ --watch <table> <slug> ]'
+USAGE_STR = " ".join([f'Usage: python3 {sys.argv[0]}',
+                        '[ --watch <table> <slug> ]', '[ --dump <db_path> ]'])
 
 KB14_URL = 'https://endtimes.dev/why-your-website-should-be-under-14kb-in-size'
 
