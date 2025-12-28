@@ -165,10 +165,10 @@ CREATING/UPDATING/DELETING DATA
 DB DIFF
 
   Since the database is a binary file, standard 'git diff' is not useful to
-  inspect pending changes. You can tell git to ask 'sqlite3' for a text dump of
-  the database when computing diffs by running
+  inspect pending changes. You can tell git to use prev.js' db dumper when
+  computing diffs by running
 
-    git config diff.sqlite3.textconv "sh -c 'sqlite3 \$0 .dump'"
+    git config diff.sqlite3.textconv "python3 prev.py --dump"
 
   and then 'git diff' will work as usual with '.db' files too.
 
@@ -225,7 +225,5 @@ TODO, MAYBE
   - Improve overall accessibility: it should be as accessible and bulletproof
     as critical services websites should.
     https://news.ycombinator.com/item?id=26691156
-
-  - More granular sqlite diff. Substring level.
 
   - Compress gallery images

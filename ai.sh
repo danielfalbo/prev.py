@@ -1,6 +1,14 @@
 #!/bin/bash
 
-FILES=("README" "prev.py" "edit.sh" "ai.sh" "vercel.json" "requirements.txt")
+FILES=(
+  "ai.sh"
+  "README"
+  "prev.py"
+  "edit.sh"
+  "vercel.json"
+  "requirements.txt"
+  ".gitattributes"
+)
 
 TEMP_FILE=$(mktemp)
 trap "rm -f '$TEMP_FILE'" EXIT

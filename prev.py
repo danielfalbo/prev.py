@@ -87,7 +87,6 @@ def get_db_tables(db):
     """
     Returns a set of user table names in the database.
     """
-
     q = """
         SELECT name FROM sqlite_master
         WHERE type='table' AND name NOT LIKE 'sqlite_%'
@@ -564,6 +563,33 @@ def generate_all(db):
     for table in RSS_TABLES:
         generate_rss(db, table)
 
+# =========================== Readable DB Diff =================================
+
+def dump_db(db_path):
+    """
+    Prints database content in a format optimized for git diff.
+    """
+    # Connect in read-only mode to prevent locking issues during git ops
+    with closing(sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)) as db:
+        db.row_factory = sqlite3.Row # Access columns by name
+        tables = get_db_tables(db)
+        for table in sorted(tables):
+            print(f"=== TABLE: {table} ===")
+            rows = db.execute(f"SELECT * FROM {table}").fetchall()
+            for row in rows:
+                slug = dict(row).get('slug', dict(row).get('id', '_'))
+                print(f"--- ENTRY: {slug} ---")
+                for key in row.keys():
+                    val = row[key]
+                    if val is None:
+                        continue
+                    if key == 'html':
+                        print(f"{key}:")
+                        print(str(val))
+                    else:
+                        print(f"{key}: {val}")
+                print("")
+
 # =========================== Live Watch Mode ==================================
 
 def watch_buffer(table, slug):
@@ -626,6 +652,9 @@ def main():
         with closing(sqlite3.connect(DB_FILE)) as db:
             db.row_factory = sqlite3.Row # Access columns by name
             generate_all(db)
+    elif len(sys.argv) == 3 and sys.argv[1] == '--dump':
+        db_path = sys.argv[2]
+        dump_db(db_path)
     elif len(sys.argv) == 4 and sys.argv[1] == '--watch':
         table, slug = sys.argv[2], sys.argv[3]
         watch_buffer(table, slug)
