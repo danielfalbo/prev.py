@@ -301,51 +301,61 @@ def dateage_js(created_time):
         """,
 
         """
-const container = document.getElementById("dateage");
+    const container = document.getElementById("dateage");
 
-const formatDate = (dateString, birthString) => {
-    const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365.2425;
+    const formatDate = (dateString, birthString) => {
+        const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365.2425;
 
-    const targetDate = new Date(dateString);
-    const birthDate = new Date(birthString);
-    const now = new Date();
+        const targetDate = new Date(dateString);
+        const birthDate = new Date(birthString);
+        const now = new Date();
 
-    // Calculate time difference relative to now (client-side)
-    const timeDifference = Math.abs(now.getTime() - targetDate.getTime());
-    const daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        // Calculate time difference relative to now (client-side)
+        const timeDifference = Math.abs(now.getTime() - targetDate.getTime());
+        const daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
 
-    // Calculate age at the created_time of the entry
-    const ageAtPostTime = (
-        (targetDate.getTime() - birthDate.getTime()) / MS_PER_YEAR
-    );
-    const ageSuffix = ageAtPostTime >= 0
-      ? `, ${ageAtPostTime.toFixed(2)} y.o.`
-      : '';
+        // Calculate age at the created_time of the entry
+        const ageAtPostTime = (
+            (targetDate.getTime() - birthDate.getTime()) / MS_PER_YEAR
+        );
 
-    // Format the display date (e.g. "December 15, 2022")
-    const fullDate = targetDate.toLocaleString('en-us', {
-      month: 'long', day: 'numeric', year: 'numeric'
-    });
+        // Age string format: "I was X y.o."
+        const ageStr = ageAtPostTime >= 0
+          ? `I was ${ageAtPostTime.toFixed(2)} y.o.`
+          : '';
 
-    // Return the string based on "Ago" buckets
-    if (daysAgo < 1) {
-      return 'Today';
-    } else if (daysAgo < 7) {
-      return `${fullDate} (${daysAgo}d ago${ageSuffix})`;
-    } else if (daysAgo < 30) {
-      const weeksAgo = Math.floor(daysAgo / 7);
-      return `${fullDate} (${weeksAgo}w ago${ageSuffix})`;
-    } else if (daysAgo < 365) {
-      const monthsAgo = Math.floor(daysAgo / 30);
-      return `${fullDate} (${monthsAgo}mo ago${ageSuffix})`;
-    } else {
-      const yearsAgo = Math.floor(daysAgo / 365);
-      return `${fullDate} (${yearsAgo}y ago${ageSuffix})`;
-    }
-};
+        // Format the display date (e.g. "December 15, 2022")
+        const fullDate = targetDate.toLocaleString('en-us', {
+          month: 'long', day: 'numeric', year: 'numeric'
+        });
 
-// Render
-container.innerText = `written on ${formatDate(createdStr, birthStr)}`
+        // 1. Handle Today
+        if (daysAgo < 1) {
+          // Result: "written Today (I was 20.05 y.o.)"
+          const suffix = ageStr ? ` (${ageStr})` : '';
+          return `written Today${suffix}`;
+        }
+
+        // 2. Handle Past Dates
+        // Result: "written on December 15, 2022 (2y ago, I was 19.01 y.o.)"
+        const pastSuffix = ageStr ? `, ${ageStr}` : '';
+        let agoStr = '';
+
+        if (daysAgo < 7) {
+          agoStr = `${daysAgo}d ago`;
+        } else if (daysAgo < 30) {
+          agoStr = `${Math.floor(daysAgo / 7)}w ago`;
+        } else if (daysAgo < 365) {
+          agoStr = `${Math.floor(daysAgo / 30)}mo ago`;
+        } else {
+          agoStr = `${Math.floor(daysAgo / 365)}y ago`;
+        }
+
+        return `written on ${fullDate} (${agoStr}${pastSuffix})`;
+    };
+
+    // Render
+    container.innerText = formatDate(createdStr, birthStr)
 </script>
         """
     ])

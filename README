@@ -105,7 +105,7 @@ HTML, CSS, JS, TEMPLATES, COMPONENTS, LAYOUTS AND PAGES
   you can use in the entry 'html' content to display the dynamic age of a post.
   The inner text of the component will be replaced with a string like
 
-    'written on December 15, 2022 (2y ago, 19.01 y.o.)'
+    'written on December 15, 2022 (2y ago, I was 19.01 y.o.)'
 
   via injected js based on the 'created_time' value of the given entry in the
   database and the 'AUTHOR_BIRTHDAY' from 'prev.py' as ISO 8601 date string.
