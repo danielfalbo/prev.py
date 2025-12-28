@@ -155,8 +155,6 @@ a:hover { text-decoration: none; }
 }
 """
 
-DOT = h('span', {}, ' · ')
-
 FOOTER = h('p', {'class': 'footer'},
     "Built with ",
     h('a', {'href': 'https://github.com/danielfalbo/prev.py/blob/main/prev.py'},
