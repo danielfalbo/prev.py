@@ -154,10 +154,9 @@ a:hover { text-decoration: none; }
 DOT = h('span', {}, ' · ')
 
 FOOTER = h('p', {'class': 'footer'},
-    "This entire website is built using 1 single file: ",
+    "Built with ",
     h('a', {'href': 'https://github.com/danielfalbo/prev.py/blob/main/prev.py'},
-        'prev.py'),
-    "."
+        'prev.py')
 )
 
 def make_navbar(steps):
@@ -275,7 +274,7 @@ def title_component(title_str):
 def table_index_page(css, table, html):
     nav = make_navbar([
         ('root', '/index.html'),
-        (table, None)
+        (table, f'/{table}.html')
     ])
     return layout(table, css, [
         title_component(table),
@@ -286,7 +285,7 @@ def author_page(css, entry):
     nav = make_navbar([
         ('root', '/index.html'),
         (entry['table'], f'/{entry["table"]}.html'),
-        (entry['name'], None)
+        (entry['name'], f'/{entry["table"]}/{entry["slug"]}.html')
     ])
 
     return layout(entry['name'], css, "".join([
@@ -298,7 +297,7 @@ def entry_page(css, entry):
     nav = make_navbar([
         ('root', '/index.html'),
         (entry['table'], f'/{entry["table"]}.html'),
-        (entry['title'], None)
+        (entry['slug'], f'/{entry["table"]}/{entry["slug"]}.html')
     ])
 
     return layout(entry['title'], css, "".join([
