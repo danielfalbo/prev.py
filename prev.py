@@ -636,7 +636,8 @@ def watch_buffer(table, slug):
                 html += dateage_js(row['created_time'])
 
             # Generate just this file
-            content = builder(css, {**row, 'html': html, 'context': ''})
+            content = builder(css, {**row, 'html': html,
+                                    'context': '', 'table': table})
 
             out_path = DIST_DIR / table / f'{slug}.html'
             write_file(out_path, content)
