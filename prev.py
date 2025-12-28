@@ -163,18 +163,25 @@ FOOTER = h('p', {'class': 'footer'},
         'prev.py')
 )
 
-def make_navbar(steps):
+def navbar_component(table, slug):
     """
-    Generates a breadcrumb nav.
-    steps: list of tuples (label, href). If href is None, it's just text.
+    Generates the breadcrumb nav.
+
+    If both 'table' and 'slug' provided are None,
+    it will just return the nav for the homepage.
+
+    If 'table' is provided and 'slug' is None,
+    it will return the nav for that table index.
+
+    If both 'table' and 'slug' are non-null,
+    it will return the nav for the page with given 'slug' within 'table'.
     """
-    links = []
-    for i, (label, href) in enumerate(steps):
-        if i > 0: links.append(' / ')
-        if href:
-            links.append(h('a', {'href': href}, label))
-        else:
-            links.append(label)
+    # list of (label, href) pairs
+    links = ['<a href="/index.html">root</a>']
+    if table is not None:
+        links.append(f" / <a href='/{table}.html'>{table}</a>")
+    if slug is not None:
+        links.append(f" / <a href='/{table}/{slug}.html'>{slug}</a>")
     return h('p', {}, *links)
 
 WAVING_HAND_CSS = """
@@ -243,7 +250,7 @@ def layout(title, css, body_content_list, navbar):
     )
 
 def index(css, more_html_content):
-    nav = make_navbar([('root', '/index.html')])
+    nav = navbar_component(None, None)
     return layout("Home", css, [
         h('p', {'style': 'font-size: 3rem; font-weight: 700; margin: 0px'},
             "Hi, I'm Daniel ",
@@ -277,21 +284,14 @@ def title_component(title_str):
     return h('p', {'class': "title-component"}, title_str)
 
 def table_index_page(css, table, html):
-    nav = make_navbar([
-        ('root', '/index.html'),
-        (table, f'/{table}.html')
-    ])
+    nav = navbar_component(table, None)
     return layout(table, css, [
         title_component(table),
         html
     ], nav)
 
 def author_page(css, entry):
-    nav = make_navbar([
-        ('root', '/index.html'),
-        (entry['table'], f'/{entry["table"]}.html'),
-        (entry['slug'], f'/{entry["table"]}/{entry["slug"]}.html')
-    ])
+    nav = navbar_component(entry['table'], entry['slug'])
 
     return layout(entry['name'], css, "".join([
         title_component(entry['name']),
@@ -299,11 +299,7 @@ def author_page(css, entry):
     ]), nav)
 
 def entry_page(css, entry):
-    nav = make_navbar([
-        ('root', '/index.html'),
-        (entry['table'], f'/{entry["table"]}.html'),
-        (entry['slug'], f'/{entry["table"]}/{entry["slug"]}.html')
-    ])
+    nav = navbar_component(entry['table'], entry['slug'])
 
     return layout(entry['title'], css, "".join([
         title_component(entry['title']),
