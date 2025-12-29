@@ -157,7 +157,7 @@ a:hover { text-decoration: none; }
 aside {
     background-color: light-dark(#eff6ff, #172436);
     border-left: 5px solid #4338ca;
-    padding: 10px;
+    padding: 1px 6px;
 }
 """
 
