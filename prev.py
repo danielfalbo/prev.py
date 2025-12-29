@@ -153,6 +153,12 @@ a:hover { text-decoration: none; }
     opacity: 0.5;
     text-align: center;
 }
+
+aside {
+    background-color: light-dark(#eff6ff, #172436);
+    border-left: 5px solid #4338ca;
+    padding: 10px;
+}
 """
 
 FOOTER = h('p', {'class': 'footer'},
