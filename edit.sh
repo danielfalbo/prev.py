@@ -31,12 +31,36 @@ if [ "$EXISTS" -eq "0" ]; then
   if [ "$TABLE" == "authors" ]; then
     read -p "Enter Name: " DISPLAY_VAL
 
+    # Escape quotes
+    DISPLAY_VAL="${DISPLAY_VAL//\'/''}"
+
     # Insert author onto db.
     sqlite3 $DB "INSERT INTO \"$TABLE\" (slug, name) VALUES ('$SLUG', '$DISPLAY_VAL');"
 
     exit 0 # There is nothing to edit in vim for authors.
+
+  elif [ "$TABLE" == "snippets" ]; then
+    # Ask for the text content
+    read -p "Enter Snippet Text: " DISPLAY_VAL
+
+    # Escape quotes
+    DISPLAY_VAL="${DISPLAY_VAL//\'/''}"
+
+    # List authors to get an ID
+    echo "Available Authors:"
+    sqlite3 $DB "SELECT id, name FROM authors;"
+    read -p "Enter Author ID: " AUTH_ID
+
+    # Insert new quote
+    sqlite3 $DB "INSERT INTO \"$TABLE\" (slug, txt, author_id) VALUES ('$SLUG', '$DISPLAY_VAL', $AUTH_ID);"
+    exit 0 # Nothing to edit in vim for snippets.
+
   else
     read -p "Enter Title: " DISPLAY_VAL
+
+    # Escape quotes
+    DISPLAY_VAL="${DISPLAY_VAL//\'/''}"
+
     # Insert the new row with empty HTML.
     sqlite3 $DB "INSERT INTO \"$TABLE\" (slug, title, html) VALUES ('$SLUG', '$DISPLAY_VAL', '');"
   fi
