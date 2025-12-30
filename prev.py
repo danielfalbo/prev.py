@@ -235,7 +235,7 @@ const tick = () => {
 tick();
 """
 
-def layout(title, components):
+def layout(title, html):
     return f"""<!doctype html>
 <html>
     <head>
@@ -244,59 +244,59 @@ def layout(title, components):
         <meta charset="UTF-8">
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
     </head>
-    <body>{"".join([*components, FOOTER])}</body>
+    <body>{html} {FOOTER}</body>
 </html>
     """
 
 def homepage(more_html_content):
-    return layout("Home", [
-        navbar_component(None, None),
-        """<p style='font-size: 3rem; font-weight: 700; margin: 0px'>
+    return layout("Home", f"""
+        {navbar_component(None, None)}
+        <p style='font-size: 3rem; font-weight: 700; margin: 0px'>
             Hi, I'm Daniel <span id='waving-hand'>👋</span>
-        </p>""",
-        """<p>
+        </p>
+        <p>
             🇬🇧 Software Engineer at
             <a href='https://wikipedia.org/wiki/Palantir_Technologies'>PLTR</a>
             London
-        </p>""",
-        """<p>
+        </p>
+        <p>
             🧮 Studying
             <a href='./weblog/learning-library.html'>Computers & AI</a>
-        </p>""",
-        "<p>🎂 <span id='live-age'></span> years old</p>",
-        "<p>🕺 Dancer</p>",
+        </p>
+        <p>🎂 <span id='live-age'></span> years old</p>
+        <p>🕺 Dancer</p>
 
-        more_html_content,
+        {more_html_content}
 
-        "<pre>:wq↵</pre>",
-        f"<script>{LIVE_AGE_JS}</script>",
-        f"<style>{WAVING_HAND_CSS}</style>",
-    ])
+        <pre>:wq↵</pre>
+        <script>{LIVE_AGE_JS}</script>
+        <style>{WAVING_HAND_CSS}</style>
+    """)
 
 def title_component(title_str):
     return f'<p class="title-component">{title_str}</p>'
 
 def table_index_page(table, html):
-    return layout(table, [
-        navbar_component(table, None),
-        title_component(table),
-        html
-    ])
+    return layout(table, f"""
+        {navbar_component(table, None)}
+        {title_component(table)}
+        {html}
+    """)
 
 def author_page(entry):
-    return layout(entry['name'], [
-        navbar_component(entry['table'], entry['slug']),
-        title_component(entry['name']),
-        entry['context'],
-    ])
+    return layout(entry['name'], f"""
+        {navbar_component(entry['table'], entry['slug'])}
+        {title_component(entry['name'])}
+        {entry['context']}
+    """)
 
 def entry_page(entry):
-    return layout(entry['title'], [
-        navbar_component(entry['table'], entry['slug']),
-        title_component(entry['title']),
-        entry['context'],
-        entry['html']
-    ])
+    return layout(entry['title'], f"""
+        {navbar_component(entry['table'], entry['slug'])}
+        {title_component(entry['title'])}
+        {entry['context']}
+        {entry['html']}
+    """)
 
 NOT_FOUND_PAGE = """
 <style>html { color-scheme: light dark; }</style>
