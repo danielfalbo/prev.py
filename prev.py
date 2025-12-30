@@ -105,14 +105,6 @@ def xml_escape(s):
     s = s.replace(">", "&gt;")
     return s
 
-# ======================== HTML Functional Components ==========================
-
-# Usage: h('p', {'id': 'hello'}, 'Hello', h('span', {}, 'World'))
-def h(tag, props, *children):
-    attr_str = " ".join([f'{key}="{value}"' for key, value in props.items()])
-    inner_html = "".join(children)
-    return f"<{tag} {attr_str}>{inner_html}</{tag}>"
-
 # ======================= HTML Templates and Components ========================
 
 GLOBAL_CSS = """
@@ -161,11 +153,14 @@ aside {
 }
 """
 
-FOOTER = h('p', {'class': 'footer'},
-    "Built with ",
-    h('a', {'href': 'https://github.com/danielfalbo/prev.py/blob/main/prev.py'},
-        'prev.py')
-)
+FOOTER = """
+<p class="footer">
+    Built with
+    <a href="https://github.com/danielfalbo/prev.py/blob/main/prev.py">
+        prev.py
+    </a>
+</p>
+"""
 
 def navbar_component(table, slug):
     """
@@ -181,12 +176,12 @@ def navbar_component(table, slug):
     it will return the nav for the page with given 'slug' within 'table'.
     """
     # list of (label, href) pairs
-    links = ['<a href="/index.html">root</a>']
+    links = '<a href="/index.html">root</a>'
     if table is not None:
-        links.append(f" / <a href='/{table}.html'>{table}</a>")
+        links += f" / <a href='/{table}.html'>{table}</a>"
     if slug is not None:
-        links.append(f" / <a href='/{table}/{slug}.html'>{slug}</a>")
-    return h('p', {}, *links)
+        links += f" / <a href='/{table}/{slug}.html'>{slug}</a>"
+    return f"<p>{links}</p>"
 
 WAVING_HAND_CSS = """
 @keyframes wave {
@@ -241,51 +236,45 @@ tick();
 """
 
 def layout(title, components):
-    return "<!doctype html>" + h('html', {},
-
-        h('head', {},
-            h('title', {}, f'{title} | danielfalbo'),
-            h('style', {}, GLOBAL_CSS),
-            '<meta charset="UTF-8">',
-            '<link rel="icon" type="image/x-icon" href="/favicon.ico">',
-        ),
-
-        h('body', {}, "".join([*components, FOOTER]))
-    )
+    return f"""<!doctype html>
+<html>
+    <head>
+        <title>{title} | danielfalbo</title>
+        <style>{GLOBAL_CSS}</style>
+        <meta charset="UTF-8">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    </head>
+    <body>{"".join([*components, FOOTER])}</body>
+</html>
+    """
 
 def homepage(more_html_content):
     return layout("Home", [
         navbar_component(None, None),
-        h('p', {'style': 'font-size: 3rem; font-weight: 700; margin: 0px'},
-            "Hi, I'm Daniel ",
-            h('span', {'id': 'waving-hand'}, '👋')
-        ),
-        h('p', {}, "🇬🇧 Software Engineer at ",
-            h('a', {'href': 'https://wikipedia.org/wiki/Palantir_Technologies'},
-                'PLTR'),
-            " London"
-        ),
-        h('p', {},
-            "🧮 Studying ",
-            h('a', {'href': './weblog/learning-library.html'}, "Computers & AI")
-        ),
-        h('p', {},
-            "🎂 ",
-            h('span', {'id': 'live-age'}, ""),
-            " years old"
-        ),
-        h('p', {}, "🕺 Dancer"),
+        """<p style='font-size: 3rem; font-weight: 700; margin: 0px'>
+            Hi, I'm Daniel <span id='waving-hand'>👋</span>
+        </p>""",
+        """<p>
+            🇬🇧 Software Engineer at
+            <a href='https://wikipedia.org/wiki/Palantir_Technologies'>PLTR</a>
+            London
+        </p>""",
+        """<p>
+            🧮 Studying
+            <a href='./weblog/learning-library.html'>Computers & AI</a>
+        </p>""",
+        "<p>🎂 <span id='live-age'></span> years old</p>",
+        "<p>🕺 Dancer</p>",
 
         more_html_content,
 
-        h('pre', {}, ":wq↵"),
-
-        h('script', {}, LIVE_AGE_JS),
-        h('style', {}, WAVING_HAND_CSS)
+        "<pre>:wq↵</pre>",
+        f"<script>{LIVE_AGE_JS}</script>",
+        f"<style>{WAVING_HAND_CSS}</style>",
     ])
 
 def title_component(title_str):
-    return h('p', {'class': "title-component"}, title_str)
+    return f'<p class="title-component">{title_str}</p>'
 
 def table_index_page(table, html):
     return layout(table, [
@@ -443,9 +432,7 @@ def fetch_values(db, table):
         for row_slug, rel_slugs in relations_map.items():
             if row_slug in tmpl_values_by_slug:
                 links = "".join([
-                    h('p', {},
-                        h('a', {'href': f'../{b}/{s}.html'}, f'/{b}/{s}')
-                    )
+                    f"<p><a href='../{b}/{s}.html'>/{b}/{s}</a></p>"
                     for s in rel_slugs
                 ])
 
