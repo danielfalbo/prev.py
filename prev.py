@@ -36,34 +36,7 @@ USAGE_STR = (
 KB14_URL = 'https://endtimes.dev/why-your-website-should-be-under-14kb-in-size'
 
 # Tables for which we also generate RSS.
-# Must have fields 'title', 'created_time', 'html'.
 RSS_TABLES = {'weblog', 'bookmarks'}
-
-# ==================== Relationships Context Configuration =====================
-
-#
-# The following relationships definitions will be used to include 'context' on
-# entries pages, such as including the authors on the entry page of a bookmark.
-#
-# Format:
-# 'this_table': [
-#     ('junction_table', 'this_id_col', 'this_junction_id_col',
-#       'other_table', 'other_id_col', 'other_junction_id_col'),
-# ]
-#
-# Note: assumes 'other_tables' has a 'slug' column and gets compiled at
-# /<table>/[slug].html
-#
-RELATIONSHIPS = {
-    'bookmarks': [
-        ('bookmark_authors', 'id', 'bookmark_id',
-         'authors', 'id', 'author_id')
-    ],
-    'authors': [
-        ('bookmark_authors', 'id', 'author_id',
-         'bookmarks', 'id', 'bookmark_id')
-    ]
-}
 
 # =============================== Utils ========================================
 
@@ -298,6 +271,13 @@ def entry_page(entry):
         {entry['html']}
     """)
 
+def snippet_page(entry):
+    return layout(entry['txt'], f"""
+        {navbar_component(entry['table'], entry['slug'])}
+        {title_component(f'"{entry['txt']}"')}
+        {entry['context']}
+    """)
+
 NOT_FOUND_PAGE = """
 <style>html { color-scheme: light dark; }</style>
 <pre>404</pre>
@@ -382,6 +362,7 @@ TABLE_TO_BUILDER = {
     'authors': author_page,
     'weblog': entry_page,
     'bookmarks': entry_page,
+    'snippets': snippet_page,
 }
 
 def fetch_values(db, table):
@@ -395,50 +376,81 @@ def fetch_values(db, table):
     rows = db.execute(f'SELECT * FROM {table}').fetchall()
 
     # Construct a map from slug to key-value replacements
-    tmpl_values_by_slug = {
+    data = {
         r['slug']: {**dict(r), 'context': '', 'table': table}
         for r in rows
     }
 
-    # Append DATEAGE JS <script> to 'html' content
-    for slug in tmpl_values_by_slug:
-        html = tmpl_values_by_slug[slug].get('html', None)
-        created_time = tmpl_values_by_slug[slug].get('created_time', None)
-        if html is None or created_time is None: continue
+    # Append DATEAGE JS <script> to 'html' content of weblog entries
+    for slug in data:
+        if table == 'weblog':
+            data[slug]['html'] += dateage_js(data[slug]['created_time'])
 
-        tmpl_values_by_slug[slug]['html'] += dateage_js(created_time)
+    # Inject relationships context.
+    if table == 'snippets':
+        # Snippets show their author
+        for slug, entry in data.items():
+            q = "SELECT a.slug, a.name FROM authors a WHERE a.id = ?"
+            author = db.execute(q, (entry['author_id'],)).fetchone()
+            entry['context'] = f"""<p>-
+                <a href='../authors/{author['slug']}.html'>
+                    {author['name']}
+                </a>
+            </p>"""
+    elif table == 'bookmarks':
+        # Bookmarks show their authors (via junction table)
+        for slug, entry in data.items():
+            q = """SELECT a.slug, a.name FROM authors a
+                   JOIN bookmark_authors ba ON a.id = ba.author_id
+                   WHERE ba.bookmark_id = ?"""
+            authors = db.execute(q, (entry['id'],)).fetchall()
+            links = [
+                f"<a href='../authors/{a['slug']}.html'>{a['name']}</a>"
+                for a in authors
+            ]
+            if links:
+                entry['context'] = f"<p>{', '.join(links)}</p><p>---</p>"
+    elif table == 'authors':
+        # Authors show their bookmarks and snippets (via junction table)
+        for slug, entry in data.items():
+            author_id = entry['id']
 
-    # Construct the 'context' value to contain hyperlinks to all pages related
-    # to the one with the given slug, based on the defined 'RELATIONSHIPS'.
-    if table not in RELATIONSHIPS:
-        return tmpl_values_by_slug
+            # Get Bookmarks
+            q_bk = """SELECT b.slug, b.title FROM bookmarks b
+                      JOIN bookmark_authors ba ON b.id = ba.bookmark_id
+                      WHERE ba.author_id = ? ORDER BY b.created_time DESC"""
+            bookmarks = db.execute(q_bk, (author_id,)).fetchall()
 
-    a = table
-    for j, a_id, j_a_id, b, b_id, j_b_id in RELATIONSHIPS[table]:
-        # Query the database for the given relationship
-        q = f"""
-            SELECT a.slug as a_slug, b.slug as b_slug
-            FROM {b} b
-            JOIN {j} j ON b.id = j.{j_b_id}
-            JOIN {a} a ON a.id = j.{j_a_id}
-        """
-        relations_map = {}
-        for rel in db.execute(q):
-            src_slug = rel['a_slug']
-            if src_slug not in relations_map: relations_map[src_slug] = []
-            relations_map[src_slug].append(rel['b_slug'])
+            # Get Snippets
+            q_sn = """SELECT slug, txt FROM snippets
+                      WHERE author_id = ? ORDER BY created_time DESC"""
+            snippets = db.execute(q_sn, (author_id,)).fetchall()
 
-        # Add links to the results at `tmpl_values_by_slug[row_slug]['context']`
-        for row_slug, rel_slugs in relations_map.items():
-            if row_slug in tmpl_values_by_slug:
+            # Build HTML
+            html = ""
+
+            if bookmarks:
                 links = "".join([
-                    f"<p><a href='../{b}/{s}.html'>/{b}/{s}</a></p>"
-                    for s in rel_slugs
+                    f"""<p>
+                        <a href='../bookmarks/{b['slug']}.html'>{b['title']}</a>
+                    </p>"""
+                    for b in bookmarks
                 ])
+                html += f"<p><strong>Bookmarks:</strong></p>{links}"
 
-                tmpl_values_by_slug[row_slug]['context'] += links
+            if snippets:
+                links = "".join([
+                    f"""<p>
+                        <a href='../snippets/{s['slug']}.html'>{s['txt']}</a>
+                    </p>"""
+                    for s in snippets
+                ])
+                html += f"<p><strong>Snippets:</strong></p>{links}"
 
-    return tmpl_values_by_slug
+            entry['context'] = html
+
+
+    return data
 
 def generate_section(db, table, builder):
     """
@@ -458,7 +470,7 @@ def generate_section(db, table, builder):
         # unless marked as unlisted on db.
         if row.get('listed', 1):
             # try to get title, fallback on name, fallback on slug
-            label = row.get('title', row.get('name', slug))
+            label = row.get('title', row.get('name', row.get('txt', slug)))
 
             index_content_html += (f'''<p>
                 <a href="./{table}/{slug}.html">{label}</a>

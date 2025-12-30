@@ -77,7 +77,9 @@ DATABASE SCHEMA
     authors(id, slug, name, created_time);
     bookmarks(id, slug, title, created_time, html);
     bookmark_authors(bookmark_id, author_id);
-    weblog(id, slug, title, created_time, html, listed).
+    weblog(id, slug, title, created_time, html, listed);
+    snippets(id, slug, txt, created_time, author_id).
+
 
   You can clear the data and start from scratch by running
 
@@ -135,7 +137,7 @@ CREATING/UPDATING/DELETING DATA
     ./edit.sh <table> <slug>
 
   which, if the entry does not exist, will prompt you for the necessary
-  metadata (Title or Name) and create the record for you. It will then open
+  metadata and create the record for you. It will then open
   the HTML content in vi and dump it back to database on exit.
 
   The edit.sh script creates a local temp 'buf_<table>_<slug>.html' file.
@@ -201,22 +203,7 @@ LLMs ASSISTANCE
 
   Note: included source files are hardcoded in the 'ai.sh' script.
 
-PRINCIPLES
-
-  > "Simple things should be simple, complex things should be possible."
-    - Alan Kay
-
-  > "Make every detail perfect and limit the number of details to perfect."
-    - Jack Dorsey
-
-  > "Good design is as little design as possible."
-    - Dieter Rams
-
 TODO, MAYBE
-
-  - Drop 'RELATIONSHIPS' in favour of native SQLite views.
-
-  - Introduce SNIPPETS(id, slug, txt, created_time, author_id).
 
   - Notion/Substack content parity:
     https://cdn.danielfalbo.com/tags.png,
