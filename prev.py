@@ -228,15 +228,11 @@ def homepage(more_html_content):
             Hi, I'm Daniel <span id='waving-hand'>👋</span>
         </p>
         <p>
-            🇬🇧 Software Engineer at
-            <a href='https://wikipedia.org/wiki/Palantir_Technologies'>PLTR</a>
-            London
-        </p>
-        <p>
             🧮 Studying
             <a href='./weblog/learning-library.html'>Computers & AI</a>
         </p>
         <p>🎂 <span id='live-age'></span> years old</p>
+        <p>🇬🇧 Based in London</p>
         <p>🕺 Dancer</p>
 
         {more_html_content}
