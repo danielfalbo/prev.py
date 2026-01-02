@@ -164,20 +164,6 @@ CREATING/UPDATING/DELETING DATA
   Note: the watcher only works on BSD because it relies on the 'kqueue' syscall
     to listen for file changes.
 
-WEEKLY BLOG POST
-
-  This repo also contains a script
-
-    ./log.sh
-
-  that edits the weblog YYYY-MM-DD entry of current day if it's sunday,
-  otherwise the upcoming sunday.
-
-  This allows to keep an unlisted weekly weblog entry to accumulate notes,
-  and then polish and publish on sunday.
-
-  Note: it uses the 'date' util that is only guaranteed to be available on BSD.
-
 DB DIFF
 
   Since the database is a binary file, standard 'git diff' is not useful to
