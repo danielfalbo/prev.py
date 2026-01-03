@@ -233,6 +233,7 @@ def homepage(more_html_content):
         </p>
         <p>🎂 <span id='live-age'></span> years old</p>
         <p>🇬🇧 Based in London</p>
+        <p>🇮🇹 From Italy</p>
         <p>🕺 Dancer</p>
 
         {more_html_content}
