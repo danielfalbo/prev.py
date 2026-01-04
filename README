@@ -199,7 +199,7 @@ TODO, MAYBE
   - Introduce a server and dynamic content to implement visitors stats and text
     message user reach-out form, make sure client-facing SQL queries are
     injection-safe, if any. Minimize JSON parsing overhead: consider returing
-    HTML from the server. Consider handle post submission without reload:
+    HTML from the server. Consider handling post submission without reload:
     listening for 'submit' event.
 
   - Consider https://html3000.dev,
