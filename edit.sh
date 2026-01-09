@@ -48,12 +48,40 @@ if [ "$EXISTS" -eq "0" ]; then
 
     # List authors to get an ID
     echo "Available Authors:"
-    sqlite3 $DB "SELECT id, name FROM authors;"
+    sqlite3 -header -column $DB "SELECT id, name FROM authors;"
     read -p "Enter Author ID: " AUTH_ID
 
     # Insert new quote
     sqlite3 $DB "INSERT INTO \"$TABLE\" (slug, txt, author_id) VALUES ('$SLUG', '$DISPLAY_VAL', $AUTH_ID);"
     exit 0 # Nothing to edit in vim for snippets.
+
+  elif [ "$TABLE" == "bookmarks" ]; then
+    read -p "Enter Title: " DISPLAY_VAL
+
+    # Escape quotes
+    DISPLAY_VAL="${DISPLAY_VAL//\'/''}"
+
+    # List authors to get an ID
+    echo "Available Authors:"
+    sqlite3 -header -column $DB "SELECT id, name FROM authors;"
+    read -p "Enter Author ID(s) (comma separated): " AUTHORS_INPUT
+
+    # Insert the new row with empty HTML.
+    sqlite3 $DB "INSERT INTO \"$TABLE\" (slug, title, html) VALUES ('$SLUG', '$DISPLAY_VAL', '');"
+
+    # Get the bookmark ID
+    BM_ID=$(sqlite3 $DB "SELECT id FROM bookmarks WHERE slug='$SLUG';")
+
+    # Process authors
+    IFS=',' read -ra ADDR <<< "$AUTHORS_INPUT"
+    for AUTH_ID in "${ADDR[@]}"; do
+        # trim whitespace
+        AUTH_ID=$(echo "$AUTH_ID" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        if [ -z "$AUTH_ID" ]; then continue; fi
+
+        # Link author to bookmark
+        sqlite3 $DB "INSERT INTO bookmark_authors (bookmark_id, author_id) VALUES ($BM_ID, $AUTH_ID);"
+    done
 
   else
     read -p "Enter Title: " DISPLAY_VAL
