@@ -370,7 +370,8 @@ def fetch_values(db, table):
     """
 
     # Fetch entries from the given table
-    rows = db.execute(f'SELECT * FROM {table}').fetchall()
+    rows = db.execute(f"""SELECT * FROM {table}
+                        ORDER BY created_time DESC""").fetchall()
 
     # Construct a map from slug to key-value replacements
     data = {
@@ -469,8 +470,13 @@ def generate_section(db, table, builder):
             # try to get title, fallback on name, fallback on slug
             label = row.get('title', row.get('name', row.get('txt', slug)))
 
+            # We should date suffix only for the 'weblog' table index.
+            date_suffix = ""
+            if row['table'] == 'weblog':
+                date_suffix = f" ({row['created_time'].split(' ')[0]})"
+
             index_content_html += (f'''<p>
-                <a href="./{table}/{slug}.html">{label}</a>
+                <a href="./{table}/{slug}.html">{label}</a>{date_suffix}
             </p>''')
 
     # Generate table index
