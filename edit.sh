@@ -83,14 +83,33 @@ if [ "$EXISTS" -eq "0" ]; then
         sqlite3 $DB "INSERT INTO bookmark_authors (bookmark_id, author_id) VALUES ($BM_ID, $AUTH_ID);"
     done
 
-  else
+  elif [ "$TABLE" == "weblog" ]; then
     read -p "Enter Title: " DISPLAY_VAL
 
     # Escape quotes
     DISPLAY_VAL="${DISPLAY_VAL//\'/''}"
 
+    CREATED_TIME=""
+    LISTED="0"
+    read -p "Override created_time? [y/N]: " OV_TIME
+    if [[ "$OV_TIME" =~ ^[Yy]$ ]]; then
+      read -p "Enter created_time (YYYY-MM-DD HH:MM:SS): " CREATED_TIME
+    fi
+    read -p "Listed? [y/N]: " OV_LISTED
+    if [[ "$OV_LISTED" =~ ^[Yy]$ ]]; then
+      LISTED="1"
+    fi
+
     # Insert the new row with empty HTML.
-    sqlite3 $DB "INSERT INTO \"$TABLE\" (slug, title, html) VALUES ('$SLUG', '$DISPLAY_VAL', '');"
+    if [ -n "$CREATED_TIME" ]; then
+      sqlite3 $DB "INSERT INTO weblog (slug, title, html, created_time, listed) VALUES ('$SLUG', '$DISPLAY_VAL', '', '$CREATED_TIME', $LISTED);"
+    else
+      sqlite3 $DB "INSERT INTO weblog (slug, title, html, listed) VALUES ('$SLUG', '$DISPLAY_VAL', '', $LISTED);"
+    fi
+
+  else
+    echo "Unknown table: $TABLE"
+    exit 1
   fi
 fi
 
