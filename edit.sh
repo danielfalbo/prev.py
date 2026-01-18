@@ -24,6 +24,24 @@ if [ "$TABLE" == "authors" ] && [ "$EXISTS" -ne "0" ]; then
   exit 0
 fi
 
+# For existing bookmarks, offer to append authors.
+if [ "$TABLE" == "bookmarks" ] && [ "$EXISTS" -ne "0" ]; then
+  read -p "Append new authors? [y/N]: " APPEND_AUTHORS
+  if [[ "$APPEND_AUTHORS" =~ ^[Yy]$ ]]; then
+    echo "Available Authors:"
+    sqlite3 -header -column $DB "SELECT id, name FROM authors;"
+    read -p "Enter Author ID(s) (comma separated): " AUTHORS_INPUT
+
+    BM_ID=$(sqlite3 $DB "SELECT id FROM bookmarks WHERE slug='$SLUG';")
+    IFS=',' read -ra ADDR <<< "$AUTHORS_INPUT"
+    for AUTH_ID in "${ADDR[@]}"; do
+      AUTH_ID=$(echo "$AUTH_ID" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      if [ -z "$AUTH_ID" ]; then continue; fi
+      sqlite3 $DB "INSERT INTO bookmark_authors (bookmark_id, author_id) VALUES ($BM_ID, $AUTH_ID);"
+    done
+  fi
+fi
+
 if [ "$EXISTS" -eq "0" ]; then
   echo "Entry '$SLUG' not found in '$TABLE'. Creating new..."
 
