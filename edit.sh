@@ -100,11 +100,12 @@ if [ "$EXISTS" -eq "0" ]; then
       LISTED="1"
     fi
 
-    # Insert the new row with empty HTML.
+    # Insert the new row with default HTML.
+    DEFAULT_HTML="<span style='opacity: 0.8; font-size: 0.8rem;' id='dateage'></span>"
     if [ -n "$CREATED_TIME" ]; then
-      sqlite3 $DB "INSERT INTO weblog (slug, title, html, created_time, listed) VALUES ('$SLUG', '$DISPLAY_VAL', '', '$CREATED_TIME', $LISTED);"
+      sqlite3 $DB "INSERT INTO weblog (slug, title, html, created_time, listed) VALUES ('$SLUG', '$DISPLAY_VAL', '$DEFAULT_HTML', '$CREATED_TIME', $LISTED);"
     else
-      sqlite3 $DB "INSERT INTO weblog (slug, title, html, listed) VALUES ('$SLUG', '$DISPLAY_VAL', '', $LISTED);"
+      sqlite3 $DB "INSERT INTO weblog (slug, title, html, listed) VALUES ('$SLUG', '$DISPLAY_VAL', '$DEFAULT_HTML', $LISTED);"
     fi
 
   else
