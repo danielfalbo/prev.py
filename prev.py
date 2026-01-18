@@ -119,6 +119,15 @@ a:hover { text-decoration: none; }
     text-align: center;
 }
 
+code {
+  background-color: light-dark(#f2f2f2, #2d2d2d);
+  color: light-dark(#c7254e, #ff7b9d);
+  border: 1px solid light-dark(#e1e1e8, #44444c);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 90%;
+}
+
 aside {
     background-color: light-dark(#eff6ff, #172436);
     border-left: 5px solid #4338ca;
