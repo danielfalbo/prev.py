@@ -271,7 +271,7 @@ def entry_page(entry):
 def snippet_page(entry):
     return layout(entry['txt'], f"""
         {navbar_component(entry['table'], entry['slug'])}
-        {title_component(f'"{entry['txt']}"')}
+        {title_component(f'"{entry["txt"]}"')}
         {entry['context']}
     """)
 
